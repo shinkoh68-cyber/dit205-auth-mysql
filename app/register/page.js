@@ -8,147 +8,182 @@ export default function RegisterPage() {
   const [form, setForm] = useState({
     fullname: "",
     email: "",
-    password: ""
+    password: "",
   });
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
   async function handleRegister(e) {
     e.preventDefault();
+
     setLoading(true);
-    setMessage("");
+    setSuccess("");
     setError("");
 
     try {
       const response = await fetch("/api/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Registration failed");
+        throw new Error(
+          data.error || "Registration failed"
+        );
       }
 
-      setMessage("Account created successfully! You can now log in.");
-      setForm({ fullname: "", email: "", password: "" });
+      setSuccess(
+        "Account created successfully! You can now log in."
+      );
+
+      setForm({
+        fullname: "",
+        email: "",
+        password: "",
+      });
     } catch (err) {
-      setError(err.message);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Registration failed"
+      );
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main style={{
-      minHeight: "100vh",
-      display: "grid",
-      placeItems: "center",
-      background: "#0f172a",
-      padding: 20
-    }}>
-      <form onSubmit={handleRegister} style={{
-        width: "100%",
-        maxWidth: 420,
-        padding: 32,
-        background: "#1e293b",
-        color: "white",
-        borderRadius: 16
-      }}>
-        <h1 style={{ marginBottom: 10 }}>Create Account</h1>
-        <p style={{ color: "#cbd5e1", marginBottom: 24 }}>
-          DIT205 MySQL Authentication
-        </p>
-
-        <label htmlFor="fullname">Full Name</label>
-        <input
-          id="fullname"
-          required
-          value={form.fullname}
-          onChange={(e) =>
-            setForm({ ...form, fullname: e.target.value })
-          }
-          placeholder="Your full name"
-          style={inputStyle}
-        />
-
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          required
-          value={form.email}
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
-          placeholder="you@example.com"
-          style={inputStyle}
-        />
-
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          minLength={8}
-          required
-          value={form.password}
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
-          placeholder="At least 8 characters"
-          style={inputStyle}
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: "100%",
-            padding: 13,
-            border: 0,
-            borderRadius: 8,
-            background: "#8b5cf6",
-            color: "white",
-            cursor: "pointer",
-            marginTop: 12
-          }}
-        >
-          {loading ? "Creating..." : "Register"}
-        </button>
-
-        {message && (
-          <p role="status" style={{ color: "#86efac", marginTop: 16 }}>
-            {message}
-          </p>
-        )}
-
-        {error && (
-          <p role="alert" style={{ color: "#fca5a5", marginTop: 16 }}>
-            {error}
-          </p>
-        )}
-
-        <p style={{ marginTop: 20, color: "#cbd5e1" }}>
-          Already have an account?{" "}
-          <Link href="/login" style={{ color: "#c4b5fd" }}>
-            Login
+    <main className="auth-page">
+      <div className="auth-container">
+        <div className="auth-header">
+          <Link href="/" className="auth-logo">
+            ✦ DIT205<span>Cloud</span>
           </Link>
-        </p>
-      </form>
+
+          <p>WELCOME TO OUR PLATFORM</p>
+
+          <h1>
+            Create Your <span>Account.</span>
+          </h1>
+
+          <p className="auth-description">
+            Join our secure cloud authentication platform
+            built with Next.js and TiDB Cloud.
+          </p>
+        </div>
+
+        <div className="auth-card">
+          <div className="auth-card-heading">
+            <h2>Get Started</h2>
+            <p>Enter your information to create an account.</p>
+          </div>
+
+          <form onSubmit={handleRegister}>
+            <div className="auth-field">
+              <label htmlFor="fullname">
+                Full Name
+              </label>
+              <input
+                id="fullname"
+                type="text"
+                placeholder="Enter your full name"
+                autoComplete="name"
+                required
+                value={form.fullname}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    fullname: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="auth-field">
+              <label htmlFor="email">
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                autoComplete="email"
+                required
+                value={form.email}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    email: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="auth-field">
+              <label htmlFor="password">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Minimum 8 characters"
+                minLength={8}
+                autoComplete="new-password"
+                required
+                value={form.password}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    password: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="auth-submit"
+              disabled={loading}
+            >
+              {loading
+                ? "Creating Account..."
+                : "Create Account →"}
+            </button>
+          </form>
+
+          {success && (
+            <div className="auth-success" role="status">
+              ✓ {success}
+            </div>
+          )}
+
+          {error && (
+            <div className="auth-error" role="alert">
+              {error}
+            </div>
+          )}
+
+          <div className="auth-divider">
+            <span>ALREADY A MEMBER?</span>
+          </div>
+
+          <Link href="/login" className="auth-alt">
+            Sign In to Your Account
+          </Link>
+        </div>
+
+        <div className="auth-footer">
+          <p>Shin Ko Htut · 6807866</p>
+          <p>DIT205 – Web Deploy on Cloud</p>
+        </div>
+      </div>
     </main>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  padding: 12,
-  marginTop: 8,
-  marginBottom: 18,
-  background: "#0f172a",
-  color: "white",
-  border: "1px solid #475569",
-  borderRadius: 8
-};
